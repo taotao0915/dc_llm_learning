@@ -1,0 +1,58 @@
+{
+  "measured_at": "2026-10-01T17:19:45.712654+08:00",
+  "ollama_version": "0.34.1",
+  "model": "deepseek-r1:1.5b",
+  "model_details": {
+    "parent_model": "",
+    "format": "gguf",
+    "family": "qwen2",
+    "families": [
+      "qwen2"
+    ],
+    "parameter_size": "1.8B",
+    "quantization_level": "Q4_K_M"
+  },
+  "options": {
+    "num_ctx": 2048,
+    "num_thread": 4,
+    "num_gpu": 0,
+    "num_predict": 256,
+    "temperature": 0.6,
+    "seed": 42
+  },
+  "prompt": "请用一句简短的中文解释什么是端侧大模型。",
+  "answer": "",
+  "model_loaded_before_request": false,
+  "first_generated_chunk_seconds": 6.918,
+  "first_answer_chunk_seconds": null,
+  "client_total_seconds": 34.858,
+  "server_load_seconds": 6.08,
+  "prompt_tokens": 17,
+  "server_prefill_seconds": 0.542,
+  "generated_tokens_including_thinking": 256,
+  "server_decode_seconds": 28.192,
+  "decode_tokens_per_second": 9.08,
+  "done_reason": "length",
+  "thinking_output_present": true,
+  "loaded_models_after_request": [
+    {
+      "name": "deepseek-r1:1.5b",
+      "model": "deepseek-r1:1.5b",
+      "size": 1240433949,
+      "digest": "e0979632db5a88d1a53884cb2a941772d10ff5d055aabaa6801c4e36f3a6c2d7",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "qwen2",
+        "families": [
+          "qwen2"
+        ],
+        "parameter_size": "1.8B",
+        "quantization_level": "Q4_K_M"
+      },
+      "expires_at": "2026-10-01T17:24:45.7120849+08:00",
+      "size_vram": 0,
+      "context_length": 2048
+    }
+  ]
+}
