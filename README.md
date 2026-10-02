@@ -13,6 +13,9 @@
 3. [电脑端第 1 课：本地推理](docs/LESSON_PC_01_LOCAL_INFERENCE.md)：真实实验、逐步命令、参数解释与练习。
 4. [Python 练习代码](scripts/local-model-lab.py)：调用本机 Ollama，显示流式回答和耗时。
 5. [第一次实验记录](output/local-model-lab/first-run.json) / [第二次实验记录](output/local-model-lab/second-run.json)：2026 年 10 月 1 日的原始测量结果。
+6. [电脑端第 2 课：请求字段与多轮历史](docs/LESSON_PC_02_MESSAGES_AND_HISTORY.md)：理解 `model/messages/role/content`。
+7. [连续对话练习](scripts/chat-with-history.py)：PyCharm 直接运行，一次启动可以连续提问。
+8. [第二课真实验证记录](docs/LESSON_PC_02_EXPERIMENTS.md)：两组短对话的实际结果，包含成功与错误样例。
 
 ## 运行练习
 
@@ -51,7 +54,31 @@ python scripts/local-model-lab.py --prompt '1加1等于几？' --max-tokens 512 
 - 用户已理解“推理需要计算时间”；本课进一步区分前置思考生成与正式答案生成。
 - 用户已自己运行脚本，并反馈 256 token 预算耗尽、没有正式答案的日志。
 - 已讲解默认参数与命令行参数的区别；2026-10-02 改为 PyCharm 控制台输入、默认 1024 token、自动保存新报告。
-- 下一课：理解 Python 请求中的 `model`、`messages`、`role`、`content`，逐步加入多轮历史。
+- 第二课已提供讲义与连续对话练习：学习 `model/messages/role/content` 和内存中的历史列表；用户的第二课实践结果尚待反馈。
+- 第二课包含 5 项离线检查，验证历史携带、裁剪、清空、流式拼接和失败轮次隔离；这些检查不代替真实模型效果评测。
+- 助手已做第二课两组真实验证：英文名字样例正确，中文名字样例错误；两组均确认第二轮发送 3 条消息。结果与原始记录已保留。
+
+## 第二课怎么运行
+
+在 PyCharm 中打开 `scripts/chat-with-history.py` 并右键 Run，依次输入：
+
+```text
+我叫小林。请只回复：你好，小林。
+我叫什么名字？请只回答名字。
+/history
+/clear
+/history
+/exit
+```
+
+每次提问后等待回答完成，再输入下一条。正式回答与实际发送的消息会逐轮保存在 `output/chat-with-history/`。
+这一课的 `/clear` 清空本轮会话内存，磁盘上的实验记录仍保留；重新运行不会自动恢复旧历史。
+
+离线检查（无需启动 Ollama）：
+
+```powershell
+python -B -m unittest discover -s tests -v
+```
 
 ## 目录约定
 
@@ -61,7 +88,8 @@ dc_llm_learning/
 ├── AGENTS.md
 ├── docs/                   # 概念讲义、配置记录、课程笔记
 ├── scripts/                # 可运行练习
-└── output/local-model-lab/  # 原始实验记录及后续报告
+├── tests/                  # 练习程序的离线检查
+└── output/                 # 第一课及连续对话的实验记录
 ```
 
 更新代码、模型或参数后产生的新结果另存文件，保留第一次和第二次实验记录作为历史基准。
