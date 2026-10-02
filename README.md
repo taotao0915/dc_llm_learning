@@ -16,6 +16,20 @@
 
 ## 运行练习
 
+推荐直接在 PyCharm 中运行：
+
+1. 打开 `scripts/local-model-lab.py`，右键选择 Run，或使用该文件的绿色运行按钮。
+2. 在下方 Run（运行）控制台输入问题并回车。直接回车会使用“1加1等于几？请简短回答。”。
+3. 等待模型思考后显示回答，末尾会显示速度、耗时和报告路径。
+
+不需要额外填写运行参数。若之前在运行配置中填写过 `--prompt` 或 `--max-tokens 256`，
+请清空该配置的 Parameters，让脚本使用新的交互输入及默认 1024 token 上限。
+一次运行只处理一个问题；再次点击运行可以问新问题，目前不保存多轮对话历史。
+报告会自动按时间保存到 `output/local-model-lab/`，保留旧实验记录。
+1024 是上限，不是每次必须生成的数量，也不保证任意问题都会在上限内完成。
+
+也可以继续使用命令行：
+
 ```powershell
 Set-Location 'F:\Software\JetBrains\PyCharm\PycharmProjects\20260624\dc_llm_learning'
 python scripts/local-model-lab.py --prompt '1加1等于几？' --max-tokens 512 --report output/local-model-lab/my-run.json
@@ -35,7 +49,8 @@ python scripts/local-model-lab.py --prompt '1加1等于几？' --max-tokens 512 
 - 已由助手执行两次本地 CPU 推理实验，并保存结果。
 - 已讲解输出预算、思考内容、首个片段、正式答案、速度和质量检查。
 - 用户已理解“推理需要计算时间”；本课进一步区分前置思考生成与正式答案生成。
-- 用户自己重复运行练习的结果尚未反馈，不能记为已完成。
+- 用户已自己运行脚本，并反馈 256 token 预算耗尽、没有正式答案的日志。
+- 已讲解默认参数与命令行参数的区别；2026-10-02 改为 PyCharm 控制台输入、默认 1024 token、自动保存新报告。
 - 下一课：理解 Python 请求中的 `model`、`messages`、`role`、`content`，逐步加入多轮历史。
 
 ## 目录约定

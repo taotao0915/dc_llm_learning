@@ -58,13 +58,24 @@ ollama ps
 
 ## 3. 运行练习脚本
 
+2026-10-02 更新：支持在 PyCharm 直接运行。在项目树中找到
+`scripts/local-model-lab.py`，右键选择 Run；然后在下方 Run 控制台输入问题并回车。
+直接回车会使用示例问题“1加1等于几？请简短回答。”。
+每次只问一个问题，重新运行可以再问；多轮历史将在下一课学习。
+
+脚本默认生成上限现为 1024 token，思考阶段约每 10 秒显示一次进度提示。
+每次完成的实验报告自动按时间保存在学习目录 `output/local-model-lab/` 中。
+如果旧运行配置里保留了 `--prompt` 或 `--max-tokens 256`，请清空脚本参数后再运行。
+
+命令行也可以显式指定问题和预算，例如复现旧课问题：
+
 ```powershell
-python scripts/local-model-lab.py --max-tokens 512
+python scripts/local-model-lab.py --prompt '请用一句简短的中文解释什么是端侧大模型。' --max-tokens 512
 ```
 
 如果服务尚未启动，先从开始菜单启动 Ollama，待 `ollama list` 能正常使用后再运行。
 
-脚本默认问题是：
+原始实验使用的问题是：
 
 > 请用一句简短的中文解释什么是端侧大模型。
 
@@ -98,7 +109,8 @@ options = {
 }
 ```
 
-上面展示的是命令传入 `--max-tokens 512` 时的配置；不传该参数时脚本默认为 256。
+上面展示的是命令传入 `--max-tokens 512` 时的配置。旧版不传该参数时默认 256；
+2026-10-02 更新后的默认值是 1024，显式传入的参数仍优先于默认值。
 
 - `num_ctx`：上下文窗口预算。输入、对话历史和新生成内容需要放进这个窗口。
 - `num_thread`：CPU 推理线程数。本机 4 个物理核心，先以 4 线程建立基准。
@@ -190,7 +202,7 @@ python scripts/local-model-lab.py --prompt '1加1等于几？' --threads 8 --max
 先理解指标即可。要正式比较线程性能，需要固定模型、问题、输出预算和其他参数，预热后分别重复多次，再考虑散热、后台负载、缓存及输出长度差异。
 线程更多不保证更快，4 核 8 线程也不等于 8 个完整物理核心。
 
-保存一次记录：
+每次完成实验都会自动保存带时间戳的记录。也可以显式指定报告文件名：
 
 ```powershell
 python scripts/local-model-lab.py --max-tokens 512 --report output/local-model-lab/my-run.json

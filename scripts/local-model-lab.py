@@ -1,6 +1,7 @@
 """第一课：用 Python 标准库调用本机 Ollama，观察流式输出和耗时。
 
-运行：python scripts/local-model-lab.py
+PyCharm：右键运行本文件，在下方 Run 控制台输入问题并回车。
+命令行：python scripts/local-model-lab.py --prompt "1加1等于几？"
 此脚本只连接 127.0.0.1，不下载模型，不调用云端服务。
 """
 
@@ -15,6 +16,8 @@ from urllib.request import ProxyHandler, Request, build_opener
 
 
 BASE_URL = "http://127.0.0.1:11434"
+LEARNING_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_QUESTION = "1加1等于几？请简短回答。"
 # 本地请求直接连接，不经过系统 HTTP 代理。
 CLIENT = build_opener(ProxyHandler({}))
 
@@ -41,16 +44,32 @@ def main():
         sys.stdout.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", default="deepseek-r1:1.5b")
-    parser.add_argument("--prompt", default="请用一句简短的中文解释什么是端侧大模型。")
+    parser.add_argument("--prompt", help="问题；不填写时，在运行控制台输入")
     parser.add_argument("--threads", type=int, choices=range(1, 9), default=4)
-    parser.add_argument("--max-tokens", type=int, default=256, metavar="N", help="输出上限，范围 1～1024，默认 256")
-    parser.add_argument("--report", type=Path, help="可选：将实验结果保存为 JSON 文件")
+    parser.add_argument("--max-tokens", type=int, default=1024, metavar="N", help="输出上限，范围 1～1024，默认 1024（包含思考）")
+    parser.add_argument("--report", type=Path, help="报告路径；不填写时自动按时间保存到学习目录 output/local-model-lab")
     args = parser.parse_args()
     if not 1 <= args.max_tokens <= 1024:
         parser.error("--max-tokens 必须在 1～1024 之间。")
+    # PyCharm 的绿色运行按钮不需要命令行参数：用 input() 获取问题。
+    if args.prompt is None:
+        print("本地模型问答：请在下方控制台输入问题，然后按回车。", flush=True)
+        print(f"直接回车使用示例问题：{DEFAULT_QUESTION}", flush=True)
+        try:
+            args.prompt = input("你的问题：").strip() or DEFAULT_QUESTION
+        except EOFError:
+            print("未收到控制台输入。请在 PyCharm 的 Run 控制台输入，或使用 --prompt 指定问题。")
+            return
+    else:
+        args.prompt = args.prompt.strip()
+        if not args.prompt:
+            parser.error("问题不能为空。")
     # 相对报告路径始终以学习目录为起点，避免 PyCharm 的工作目录改变保存位置。
-    if args.report and not args.report.is_absolute():
-        args.report = Path(__file__).resolve().parents[1] / args.report
+    if args.report is None:
+        stamp = datetime.now(timezone(timedelta(hours=8))).strftime("%Y%m%d-%H%M%S-%f")
+        args.report = LEARNING_ROOT / "output" / "local-model-lab" / f"run-{stamp}.json"
+    elif not args.report.is_absolute():
+        args.report = LEARNING_ROOT / args.report
 
     # 先确认模型已经下载，避免初次实验意外拉取一个大模型。
     installed = get_json("/api/tags")["models"]
@@ -74,11 +93,13 @@ def main():
         "options": options,
     }
     print(f"模型：{args.model}\n问题：{args.prompt}", flush=True)
+    print(f"本次生成上限：{args.max_tokens} token（包含思考内容）", flush=True)
     print("正在请求本机模型……", flush=True)
     started = time.perf_counter()
     first_generated = None
     first_answer = None
     thinking_seen = False
+    last_progress = 0.0
     answer = []
     final = None
     with request("/api/chat", body) as response:
@@ -98,6 +119,10 @@ def main():
             if thinking and not thinking_seen:
                 print("模型正在生成思考内容，等待正式答案……", flush=True)
                 thinking_seen = True
+                last_progress = elapsed
+            elif thinking and first_answer is None and elapsed - last_progress >= 10:
+                print(f"仍在生成思考内容，已等待 {elapsed:.0f} 秒……", flush=True)
+                last_progress = elapsed
             if content:
                 if first_answer is None:
                     first_answer = round(elapsed, 3)
@@ -140,7 +165,10 @@ def main():
     print(f"生成：{token_count} token；生成速度：{rate} token/s；总耗时：{wall_seconds} 秒")
     print(f"结束原因：{report['done_reason']}")
     if not answer:
-        print("没有收到正式答案：思考可能已用完输出预算，可尝试 --max-tokens 512。")
+        if report["done_reason"] == "length":
+            print(f"本次 {args.max_tokens} token 预算耗尽，还没有正式答案。请先尝试更简短的问题。")
+        else:
+            print("模型已停止，但没有返回正式答案，请尝试重新表述问题。")
     elif report["done_reason"] == "length":
         print("已达到输出上限，答案可能尚未写完。")
     if args.report:
@@ -156,7 +184,7 @@ if __name__ == "__main__":
         print(f"本地服务返回错误 {error.code}：{error.read().decode('utf-8', errors='replace')}", file=sys.stderr)
         sys.exit(1)
     except (URLError, OSError, RuntimeError, ValueError) as error:
-        print(f"实验未完成：{error}。请确认 Ollama 已启动，且 ollama list 可用。", file=sys.stderr)
+        print(f"实验未完成：{error}。请先从开始菜单启动 Ollama，并确认本地模型已下载。", file=sys.stderr)
         sys.exit(1)
     except KeyboardInterrupt:
         print("\n已中断本次实验。", file=sys.stderr)
