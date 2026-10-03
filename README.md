@@ -19,10 +19,13 @@
 9. [英文名字失败的诊断](docs/LESSON_PC_02_NAME_RECALL_DIAGNOSIS.md)：为什么历史已经传入，仍可能答错。
 10. [Qwen3 验证与重新练习](docs/LESSON_PC_02_QWEN_VALIDATION.md)：2026-10-03 的模型更换结果、关键代码与逐步操作。
 11. [电脑端第 3 课：一次本地请求怎样完成](docs/LESSON_PC_03_LOCAL_REQUEST_FLOW.md)：区分 Python、Ollama、模型文件，以及已下载与已加载。
+12. [电脑端第 4 课：三个生成参数](docs/LESSON_PC_04_GENERATION_PARAMETERS.md)：上下文容量、输出预算、温度，以及真实对照结果。
+13. [参数实验脚本](scripts/generation-parameters-lab.py)：PyCharm 直接运行，先选 1，只改变输出预算。
 
 ## 运行练习
 
-当前进入第三课的调用链讲解，仍使用 `scripts/chat-with-history.py`（Qwen3，关闭思考生成），不新增聊天脚本。
+当前进入第四课，先运行 `scripts/generation-parameters-lab.py` 并选择 1（或直接回车），比较 8 与 128 token 输出预算。
+需要自由连续聊天时，仍运行 `scripts/chat-with-history.py`（Qwen3，关闭思考生成）；第四课没有改动它。
 下面的单轮脚本仍保留 DeepSeek，便于回看第一课；两个文件的默认模型现在不同。
 
 推荐直接在 PyCharm 中运行：
@@ -65,6 +68,8 @@ python scripts/local-model-lab.py --prompt '1加1等于几？' --max-tokens 512 
 - 第二课现有 6 项离线检查，验证历史携带、裁剪、清空、流式拼接、失败轮次隔离和模型/思考字段；这些检查不代替真实模型效果评测。
 - 2026-10-03 助手下载并重复测试 Qwen3-1.7B 非思考模式；详见新验证讲义。用户对新配置的亲自练习尚待反馈，不能把助手测试写成用户已掌握。
 - 2026-10-03 用户同意继续，进入第三课：Python → 本地 HTTP 接口 → Ollama 推理 → 返回片段；本课只读检查 list/ps，未修改聊天代码、重新下载或生成新答案。
+- 2026-10-03 第四课已由助手完成 8 次真实请求及一次离线上下文裁剪对照，保存原始报告；用户亲自实验和理解检查仍待反馈。
+- 第四课新增 6 项离线检查，加上第二课 6 项，共 12 项通过。测试验证程序行为，不等于模型回答质量评测。
 
 ## 第二课怎么运行
 
