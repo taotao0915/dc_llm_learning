@@ -3,6 +3,9 @@
 这一课只掌握四个字段和一件事：`model`、`messages`、`role`、`content`，以及怎样把上一轮对话带进下一轮请求。
 第一课的单轮实验脚本继续保留，本课使用新的 `scripts/chat-with-history.py`。
 
+2026-10-03 更新：本课改用已下载的 `qwen3:1.7b`，并用 `think=False` 关闭思考生成。
+旧 DeepSeek 试验的成功与失败记录保持原样，参见 [模型更换验证与练习](LESSON_PC_02_QWEN_VALIDATION.md)。
+
 ## 1. 先提出一个问题
 
 第一轮告诉模型：“我叫小林。”第二轮再问：“我叫什么名字？”
@@ -54,7 +57,7 @@ messages = [
 
 | 字段 | 通俗解释 | 本课示例 |
 |---|---|---|
-| `model` | 请哪个模型来回答 | `deepseek-r1:1.5b` |
+| `model` | 请哪个模型来回答 | `qwen3:1.7b` |
 | `messages` | 本次交给模型的对话记录 | 一个按顺序排列的列表 |
 | `role` | 这一句话是谁说的 | `user` 或 `assistant` |
 | `content` | 这一句话说了什么 | `我叫小林。` |
@@ -71,11 +74,12 @@ messages = [
 
 ```python
 payload = {
-    "model": "deepseek-r1:1.5b",
+    "model": "qwen3:1.7b",
     "messages": [
         {"role": "user", "content": "我叫小林。"}
     ],
     "stream": True,
+    "think": False,
 }
 ```
 
@@ -83,19 +87,22 @@ payload = {
 
 ```python
 payload = {
-    "model": "deepseek-r1:1.5b",
+    "model": "qwen3:1.7b",
     "messages": [
         {"role": "user", "content": "我叫小林。"},
         {"role": "assistant", "content": "你好，小林。"},
         {"role": "user", "content": "我叫什么名字？"},
     ],
     "stream": True,
+    "think": False,
 }
 ```
 
 第二轮有 3 条消息：上一轮用户消息、上一轮助手消息、本轮用户问题。
 因此程序会显示“本次发送 3 条消息，包含 1 轮历史”。
 `stream: True` 表示逐步接收生成内容，不是把历史保存到服务端的开关。
+`think: False` 表示本课请求 Qwen3 不生成独立的思考内容；仍然需要计算，并非不做推理。
+它与 `model`、`messages` 同层，不应放在 `options` 里面。Python 写 `False`，序列化为 JSON 后写作 `false`。
 
 ## 6. 先看懂程序的核心循环
 
@@ -143,6 +150,7 @@ data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
 流式响应不是一个完整的大 JSON，而是逐行返回的 JSON 对象。
 程序对每行执行 `json.loads(line)`，取出 `message.content`，边接收边显示并拼接。
 模型返回的 `message.thinking` 用于显示等待状态，其正文不存入下一轮的聊天历史。
+当前默认关闭思考生成；相关解析代码仍保留，以兼容之后的思考模式实验。
 
 ## 8. 两种不同的记录
 

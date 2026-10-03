@@ -18,6 +18,16 @@ def fake_stream(events):
 
 
 class HistoryTests(unittest.TestCase):
+    def test_classroom_request_uses_qwen_without_thinking(self):
+        events = [{"message": {"content": "Alice"}, "done": True, "done_reason": "stop"}]
+        with patch.object(chat.CLIENT, "open", return_value=fake_stream(events)) as opened, redirect_stdout(io.StringIO()):
+            payload, result = chat.ask_model([{"role": "user", "content": "测试"}])
+        actual_request = json.loads(opened.call_args.args[0].data)
+        self.assertEqual(actual_request["model"], "qwen3:1.7b")
+        self.assertIs(actual_request["think"], False)
+        self.assertNotIn("think", actual_request["options"])
+        self.assertTrue(result["complete"])
+
     def test_budget_removes_whole_old_turns_without_mutating_history(self):
         history = [{"role": "user", "content": "早" * 700},
                    {"role": "assistant", "content": "旧" * 700},

@@ -13,7 +13,9 @@ from urllib.error import HTTPError, URLError
 from urllib.request import ProxyHandler, Request, build_opener
 
 
-MODEL = "deepseek-r1:1.5b"
+MODEL = "qwen3:1.7b"
+# Qwen3 支持关闭思考生成。本课先练短对话，不把等待思考作为学习重点。
+THINK = False
 BASE_URL = "http://127.0.0.1:11434"
 OUTPUT_DIR = Path(__file__).resolve().parents[1] / "output" / "chat-with-history"
 OPTIONS = {"num_ctx": 4096, "num_predict": 1024, "num_thread": 4,
@@ -36,7 +38,7 @@ def prepare_messages(history, question):
 
 def ask_model(messages):
     """发送完整消息列表，拼接流式回答；这部分沿用上一课的调用方式。"""
-    payload = {"model": MODEL, "messages": messages, "stream": True,
+    payload = {"model": MODEL, "messages": messages, "stream": True, "think": THINK,
                "keep_alive": "5m", "options": OPTIONS.copy()}
     request = Request(BASE_URL + "/api/chat",
                       data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
@@ -118,6 +120,7 @@ def main():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     print(f"第 2 课：连续对话 | 本地模型 {MODEL}")
+    print(f"思考生成：{'开启' if THINK else '关闭'}（请求字段 think）")
     print("输入问题后回车；/history 查看历史；/clear 清空历史；/exit 退出。")
     print("每轮问题、发送的历史和正式回答会记录到学习目录 output/chat-with-history。")
     history = []  # ① 当前进程保存对话；重新运行时从空列表开始
