@@ -21,10 +21,13 @@
 11. [电脑端第 3 课：一次本地请求怎样完成](docs/LESSON_PC_03_LOCAL_REQUEST_FLOW.md)：区分 Python、Ollama、模型文件，以及已下载与已加载。
 12. [电脑端第 4 课：三个生成参数](docs/LESSON_PC_04_GENERATION_PARAMETERS.md)：上下文容量、输出预算、温度，以及真实对照结果。
 13. [参数实验脚本](scripts/generation-parameters-lab.py)：PyCharm 直接运行，先选 1，只改变输出预算。
+14. [电脑端第 5 课：读懂实验结果](docs/LESSON_PC_05_READING_RESULTS.md)：区分结束情况、答案质量、首片等待与生成速度。
+15. [只读查看实验](scripts/inspect-experiment.py)：直接 Run，读取第四课的固定课堂报告，无需启动 Ollama。
 
 ## 运行练习
 
-当前进入第四课，先运行 `scripts/generation-parameters-lab.py` 并选择 1（或直接回车），比较 8 与 128 token 输出预算。
+当前进入第五课，先运行 `scripts/inspect-experiment.py`，查看已有报告；不连接模型、不改原始记录，不需要启动 Ollama。
+若要重新做第四课实验，再运行 `scripts/generation-parameters-lab.py` 并选择 1（或直接回车）。
 需要自由连续聊天时，仍运行 `scripts/chat-with-history.py`（Qwen3，关闭思考生成）；第四课没有改动它。
 下面的单轮脚本仍保留 DeepSeek，便于回看第一课；两个文件的默认模型现在不同。
 
@@ -70,6 +73,8 @@ python scripts/local-model-lab.py --prompt '1加1等于几？' --max-tokens 512 
 - 2026-10-03 用户同意继续，进入第三课：Python → 本地 HTTP 接口 → Ollama 推理 → 返回片段；本课只读检查 list/ps，未修改聊天代码、重新下载或生成新答案。
 - 2026-10-03 第四课已由助手完成 8 次真实请求及一次离线上下文裁剪对照，保存原始报告；用户亲自实验和理解检查仍待反馈。
 - 第四课新增 6 项离线检查，加上第二课 6 项，共 12 项通过。测试验证程序行为，不等于模型回答质量评测。
+- 2026-10-03 第五课新增只读报告查看脚本和讲义；使用第四课旧记录，没有重新推理或重新测量电脑速度。用户亲自练习结果仍待反馈。
+- 第五课新增 6 项离线检查，验证状态解释、缺失值显示、指标读取和报告结构；不会把 stop 或 complete 自动判为内容正确。
 
 ## 第二课怎么运行
 
